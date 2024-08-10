@@ -27,6 +27,8 @@ def draw_map():
 
             if map_data[y][x] == 1:
                 pygame.draw.rect(Screen, data.grass, (pos_x, pos_y, cell_size, cell_size))
+            elif map_data[y][x] == 3:
+                pygame.draw.rect(Screen, data.obstacle_color, (pos_x, pos_y, cell_size, cell_size))
             else:
                 pygame.draw.rect(Screen, (0, 0, 0), (pos_x, pos_y, cell_size, cell_size))
 
@@ -51,6 +53,19 @@ player_speed = data.player_speed
 player_size = data.player_size
 player_colour = data.player_color
 
+def is_collision(new_pos):
+    cell_size = data.cell_size
+    grid_x = new_pos[0] // cell_size
+    grid_y = new_pos[1] // cell_size
+
+    # Перевірка, чи позиція не виходить за межі карти
+    if grid_x < 0 or grid_x >= len(map_data[0]) or grid_y < 0 or grid_y >= len(map_data):
+        return True
+
+    if map_data[grid_y][grid_x] != 1:
+        return True
+    return False
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -58,14 +73,18 @@ while running:
 
     keys = pygame.key.get_pressed()
 
+    new_pos = list(player_pos)
     if keys[pygame.K_LEFT] and player_pos[0] > 0:
-        player_pos[0] -= player_speed
+        new_pos[0] -= player_speed
     if keys[pygame.K_RIGHT] and player_pos[0] < ScreenX - player_size:
-        player_pos[0] += player_speed
+        new_pos[0] += player_speed
     if keys[pygame.K_UP] and player_pos[1] > 0:
-        player_pos[1] -= player_speed
+        new_pos[1] -= player_speed
     if keys[pygame.K_DOWN] and player_pos[1] < ScreenY - player_size:
-        player_pos[1] += player_speed
+        new_pos[1] += player_speed
+
+    if not is_collision(new_pos):
+        player_pos = new_pos
 
     Screen.fill((0, 0, 0))
     draw_map()
